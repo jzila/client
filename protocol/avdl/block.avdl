@@ -17,6 +17,11 @@ protocol block {
     UID chargedTo;
   }
 
+  record DeleteReferenceRes {
+    array<BlockReference> refs;
+    array<int> activeCount;
+  }
+
   ChallengeInfo getSessionChallenge();
   void authenticateSession(string signature);
 
@@ -24,7 +29,7 @@ protocol block {
   GetBlockRes getBlock(BlockIdCombo bid, string folder);
 
   void addReference(string folder, BlockReference ref);
-  void delReference(string folder, BlockReference ref);
+  DeleteReferenceRes delReference(string folder, array<BlockReference> refs);
   array<BlockReference> archiveReference(string folder, array<BlockReference> refs);
 
   bytes getUserQuotaInfo();

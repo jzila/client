@@ -79,11 +79,11 @@ export type incomingCallMapType = {
   'keybase.1.block.delReference'?: (
     params: {
       folder: string,
-      ref: block_BlockReference
+      refs: Array<block_BlockReference>
     },
     response: {
       error: (err: string) => void,
-      result: () => void
+      result: (result: block_delReference_result) => void
     }
   ) => void,
   'keybase.1.block.archiveReference'?: (
@@ -2056,6 +2056,16 @@ export type BlockReference = {
   chargedTo: UID;
 }
 
+export type block_DeleteReferenceRes = {
+  refs: Array<BlockReference>;
+  activeCount: Array<int>;
+}
+
+export type DeleteReferenceRes = {
+  refs: Array<BlockReference>;
+  activeCount: Array<int>;
+}
+
 // block.getSessionChallenge ////////////////////////////////////////
 
 export type block_getSessionChallenge_result = block_ChallengeInfo
@@ -2126,16 +2136,16 @@ export type block_addReference_rpc = {
 
 // block.delReference ////////////////////////////////////////
 
-/* void response */
+export type block_delReference_result = block_DeleteReferenceRes
 
 export type block_delReference_rpc = {
   method: 'block.delReference',
   param: {
     folder: string,
-    ref: block_BlockReference
+    refs: Array<block_BlockReference>
   },
   incomingCallMap: ?incomingCallMapType,
-  callback: (null | (err: ?any) => void)
+  callback: (null | (err: ?any, response: block_delReference_result) => void)
 }
 
 // block.archiveReference ////////////////////////////////////////

@@ -239,6 +239,11 @@ type BlockReference struct {
 	ChargedTo UID           `codec:"chargedTo" json:"chargedTo"`
 }
 
+type DeleteReferenceRes struct {
+	Refs        []BlockReference `codec:"refs" json:"refs"`
+	ActiveCount []int            `codec:"activeCount" json:"activeCount"`
+}
+
 type GetSessionChallengeArg struct {
 }
 
@@ -264,8 +269,8 @@ type AddReferenceArg struct {
 }
 
 type DelReferenceArg struct {
-	Folder string         `codec:"folder" json:"folder"`
-	Ref    BlockReference `codec:"ref" json:"ref"`
+	Folder string           `codec:"folder" json:"folder"`
+	Refs   []BlockReference `codec:"refs" json:"refs"`
 }
 
 type ArchiveReferenceArg struct {
@@ -282,7 +287,7 @@ type BlockInterface interface {
 	PutBlock(context.Context, PutBlockArg) error
 	GetBlock(context.Context, GetBlockArg) (GetBlockRes, error)
 	AddReference(context.Context, AddReferenceArg) error
-	DelReference(context.Context, DelReferenceArg) error
+	DelReference(context.Context, DelReferenceArg) (DeleteReferenceRes, error)
 	ArchiveReference(context.Context, ArchiveReferenceArg) ([]BlockReference, error)
 	GetUserQuotaInfo(context.Context) ([]byte, error)
 }
@@ -377,7 +382,7 @@ func BlockProtocol(i BlockInterface) rpc.Protocol {
 						err = rpc.NewTypeError((*[]DelReferenceArg)(nil), args)
 						return
 					}
-					err = i.DelReference(ctx, (*typedArgs)[0])
+					ret, err = i.DelReference(ctx, (*typedArgs)[0])
 					return
 				},
 				MethodType: rpc.MethodCall,
@@ -443,8 +448,8 @@ func (c BlockClient) AddReference(ctx context.Context, __arg AddReferenceArg) (e
 	return
 }
 
-func (c BlockClient) DelReference(ctx context.Context, __arg DelReferenceArg) (err error) {
-	err = c.Cli.Call(ctx, "keybase.1.block.delReference", []interface{}{__arg}, nil)
+func (c BlockClient) DelReference(ctx context.Context, __arg DelReferenceArg) (res DeleteReferenceRes, err error) {
+	err = c.Cli.Call(ctx, "keybase.1.block.delReference", []interface{}{__arg}, &res)
 	return
 }
 

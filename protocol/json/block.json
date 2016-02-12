@@ -262,6 +262,22 @@
       "name" : "chargedTo",
       "type" : "UID"
     } ]
+  }, {
+    "type" : "record",
+    "name" : "DeleteReferenceRes",
+    "fields" : [ {
+      "name" : "refs",
+      "type" : {
+        "type" : "array",
+        "items" : "BlockReference"
+      }
+    }, {
+      "name" : "activeCount",
+      "type" : {
+        "type" : "array",
+        "items" : "int"
+      }
+    } ]
   } ],
   "messages" : {
     "getSessionChallenge" : {
@@ -316,10 +332,13 @@
         "name" : "folder",
         "type" : "string"
       }, {
-        "name" : "ref",
-        "type" : "BlockReference"
+        "name" : "refs",
+        "type" : {
+          "type" : "array",
+          "items" : "BlockReference"
+        }
       } ],
-      "response" : "null"
+      "response" : "DeleteReferenceRes"
     },
     "archiveReference" : {
       "request" : [ {
