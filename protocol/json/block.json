@@ -264,19 +264,13 @@
     } ]
   }, {
     "type" : "record",
-    "name" : "DeleteReferenceRes",
+    "name" : "BlockReferenceCount",
     "fields" : [ {
-      "name" : "refs",
-      "type" : {
-        "type" : "array",
-        "items" : "BlockReference"
-      }
+      "name" : "ref",
+      "type" : "BlockReference"
     }, {
-      "name" : "activeCount",
-      "type" : {
-        "type" : "array",
-        "items" : "int"
-      }
+      "name" : "liveCount",
+      "type" : "int"
     } ]
   } ],
   "messages" : {
@@ -332,13 +326,26 @@
         "name" : "folder",
         "type" : "string"
       }, {
+        "name" : "ref",
+        "type" : "BlockReference"
+      } ],
+      "response" : "null"
+    },
+    "delReferenceWithCount" : {
+      "request" : [ {
+        "name" : "folder",
+        "type" : "string"
+      }, {
         "name" : "refs",
         "type" : {
           "type" : "array",
           "items" : "BlockReference"
         }
       } ],
-      "response" : "DeleteReferenceRes"
+      "response" : {
+        "type" : "array",
+        "items" : "BlockReferenceCount"
+      }
     },
     "archiveReference" : {
       "request" : [ {
