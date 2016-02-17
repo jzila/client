@@ -529,3 +529,7 @@ func (t ClientType) String() string {
 		return "other"
 	}
 }
+
+func (r BlockReference) ToString() string {
+	return r.Bid.BlockHash + string(r.Nonce[:])
+}
