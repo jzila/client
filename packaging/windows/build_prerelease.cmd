@@ -15,6 +15,6 @@ popd
 
 :: Then the desktop:
 pushd  %GOPATH%\src\github.com\keybase\client\desktop
-start /WAIT npm i
+start /WAIT npm i & exit 0
 npm run package -- --arch ia32 --platform win32 --appVersion %KEYBASE_VERSION%
 popd
