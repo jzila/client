@@ -41,15 +41,13 @@ func getNumKeys(tc libkb.TestContext, fu FakeUser) int {
 	return len(ckf.GetAllActiveSibkeys()) + len(ckf.GetAllActiveSubkeys())
 }
 
-func TestDeprovision(t *testing.T) {
-	tc := SetupEngineTest(t, "deprovision")
-	defer tc.Cleanup()
-
+func assertDeprovisionWithSetup(t *testing.T, tc libkb.TestContext) {
 	// Sign up a new user and have it store its secret in the
 	// secret store (if possible).
 	fu := NewFakeUserOrBust(tc.T, "dpr")
 	arg := MakeTestSignupEngineRunArg(fu)
-	arg.StoreSecret = libkb.HasSecretStore()
+
+	arg.StoreSecret = tc.G.SecretStoreAll != nil
 	ctx := &Context{
 		LogUI:    tc.G.UI.GetLogUI(),
 		GPGUI:    &gpgtestui{},
@@ -62,7 +60,7 @@ func TestDeprovision(t *testing.T) {
 		tc.T.Fatal(err)
 	}
 
-	if libkb.HasSecretStore() {
+	if tc.G.SecretStoreAll != nil {
 		secretStore := libkb.NewSecretStore(tc.G, fu.NormalizedUsername())
 		_, err := secretStore.RetrieveSecret()
 		if err != nil {
@@ -102,7 +100,7 @@ func TestDeprovision(t *testing.T) {
 		t.Error("Unexpectedly still logged in")
 	}
 
-	if libkb.HasSecretStore() {
+	if tc.G.SecretStoreAll != nil {
 		secretStore := libkb.NewSecretStore(tc.G, fu.NormalizedUsername())
 		secret, err := secretStore.RetrieveSecret()
 		if err == nil {
@@ -126,15 +124,27 @@ func TestDeprovision(t *testing.T) {
 	}
 }
 
-func TestDeprovisionLoggedOut(t *testing.T) {
+func TestDeprovision(t *testing.T) {
 	tc := SetupEngineTest(t, "deprovision")
 	defer tc.Cleanup()
+	if tc.G.SecretStoreAll == nil {
+		t.Fatalf("Need a secret store for this test")
+	}
+	assertDeprovisionWithSetup(t, tc)
+
+	// Now, test deprovision codepath with no secret store
+	tc.G.SecretStoreAll = nil
+	assertDeprovisionWithSetup(t, tc)
+}
+
+func assertDeprovisionLoggedOut(t *testing.T, tc libkb.TestContext) {
 
 	// Sign up a new user and have it store its secret in the
 	// secret store (if possible).
 	fu := NewFakeUserOrBust(tc.T, "dpr")
 	arg := MakeTestSignupEngineRunArg(fu)
-	arg.StoreSecret = libkb.HasSecretStore()
+
+	arg.StoreSecret = tc.G.SecretStoreAll != nil // generally true in tests
 	ctx := &Context{
 		LogUI:    tc.G.UI.GetLogUI(),
 		GPGUI:    &gpgtestui{},
@@ -147,7 +157,7 @@ func TestDeprovisionLoggedOut(t *testing.T) {
 		tc.T.Fatal(err)
 	}
 
-	if libkb.HasSecretStore() {
+	if tc.G.SecretStoreAll != nil {
 		secretStore := libkb.NewSecretStore(tc.G, fu.NormalizedUsername())
 		_, err := secretStore.RetrieveSecret()
 		if err != nil {
@@ -192,7 +202,7 @@ func TestDeprovisionLoggedOut(t *testing.T) {
 		t.Error("Unexpectedly still logged in")
 	}
 
-	if libkb.HasSecretStore() {
+	if tc.G.SecretStoreAll != nil {
 		secretStore := libkb.NewSecretStore(tc.G, fu.NormalizedUsername())
 		secret, err := secretStore.RetrieveSecret()
 		if err == nil {
@@ -216,15 +226,26 @@ func TestDeprovisionLoggedOut(t *testing.T) {
 	}
 }
 
-func TestCurrentDeviceRevoked(t *testing.T) {
+func TestDeprovisionLoggedOut(t *testing.T) {
 	tc := SetupEngineTest(t, "deprovision")
 	defer tc.Cleanup()
+	if tc.G.SecretStoreAll == nil {
+		t.Fatalf("Need a secret store for this test")
+	}
+	assertDeprovisionLoggedOut(t, tc)
+
+	// Now, test codepath with no secret store
+	tc.G.SecretStoreAll = nil
+	assertDeprovisionLoggedOut(t, tc)
+}
+
+func assertCurrentDeviceRevoked(t *testing.T, tc libkb.TestContext) {
 
 	// Sign up a new user and have it store its secret in the
 	// secret store (if possible).
 	fu := NewFakeUserOrBust(tc.T, "dpr")
 	arg := MakeTestSignupEngineRunArg(fu)
-	arg.StoreSecret = libkb.HasSecretStore()
+	arg.StoreSecret = tc.G.SecretStoreAll != nil // generally true
 	ctx := &Context{
 		LogUI:    tc.G.UI.GetLogUI(),
 		GPGUI:    &gpgtestui{},
@@ -237,7 +258,7 @@ func TestCurrentDeviceRevoked(t *testing.T) {
 		tc.T.Fatal(err)
 	}
 
-	if libkb.HasSecretStore() {
+	if tc.G.SecretStoreAll != nil {
 		secretStore := libkb.NewSecretStore(tc.G, fu.NormalizedUsername())
 		_, err := secretStore.RetrieveSecret()
 		if err != nil {
@@ -284,7 +305,7 @@ func TestCurrentDeviceRevoked(t *testing.T) {
 		t.Error("Unexpectedly still logged in")
 	}
 
-	if libkb.HasSecretStore() {
+	if tc.G.SecretStoreAll != nil {
 		secretStore := libkb.NewSecretStore(tc.G, fu.NormalizedUsername())
 		secret, err := secretStore.RetrieveSecret()
 		if err == nil {
@@ -306,4 +327,17 @@ func TestCurrentDeviceRevoked(t *testing.T) {
 	if newNumKeys != numKeys-2 {
 		t.Fatalf("failed to revoke device keys, before: %d, after: %d", numKeys, newNumKeys)
 	}
+}
+
+func TestCurrentDeviceRevoked(t *testing.T) {
+	tc := SetupEngineTest(t, "deprovision")
+	defer tc.Cleanup()
+	if tc.G.SecretStoreAll == nil {
+		t.Fatalf("Need a secret store for this test")
+	}
+	assertCurrentDeviceRevoked(t, tc)
+
+	// Now, test codepath with no secret store
+	tc.G.SecretStoreAll = nil
+	assertCurrentDeviceRevoked(t, tc)
 }
