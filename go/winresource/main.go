@@ -54,7 +54,6 @@ func main() {
 	}
 
 	semVer := fmt.Sprintf("%d.%d.%d-%d", fv.Major, fv.Minor, fv.Patch, fv.Build)
-	customVer := fmt.Sprintf("%d.%d.%d-%s", fv.Major, fv.Minor, fv.Patch, GetBuildName())
 
 	if *printverPtr {
 		fmt.Print(semVer)
@@ -67,6 +66,7 @@ func main() {
 	}
 
 	if *printCustomVerPtr {
+		customVer := fmt.Sprintf("%d.%d.%d-%s", fv.Major, fv.Minor, fv.Patch, GetBuildName())
 		fmt.Print(customVer)
 		return
 	}
